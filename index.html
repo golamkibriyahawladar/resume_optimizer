@@ -337,6 +337,8 @@
         const loading = document.getElementById("loading");
         const resultDiv = document.getElementById("result");
         const downloadBtn = document.getElementById("downloadBtn");
+        // Hide download button initially; it will show only on success
+        if (downloadBtn) downloadBtn.style.display = "none";
 
         const resumeSelect = document.getElementById("resumeSelect");
         const resumeFileDiv = document.getElementById("resumeFileDiv");
@@ -418,6 +420,8 @@
                 if (direct) {
                     const url = decodeURIComponent(direct);
                     downloadBtn.disabled = false;
+                    // Show download button when a URL is available via query param
+                    downloadBtn.style.display = "block";
                     downloadBtn.onclick = () => {
                         const a = document.createElement("a");
                         a.href = url;
@@ -478,8 +482,12 @@
             formData.append("pass", "1020");
 
             resultDiv.style.display = "none";
+            resultDiv.textContent = "";
             loading.style.display = "block";
             downloadBtn.disabled = true;
+            downloadBtn.onclick = null;
+            // Hide download button when starting a new generation
+            if (downloadBtn) downloadBtn.style.display = "none";
 
             try {
                 const response = await fetch(webhookURL, { method: "POST", body: formData });
@@ -504,6 +512,7 @@
                     }
                     if (url) {
                         downloadBtn.disabled = false;
+                        downloadBtn.style.display = "block";
                         downloadBtn.onclick = () => {
                             const a = document.createElement("a");
                             a.href = url;
@@ -523,6 +532,7 @@
                     showPdfFromBlob(blob);
                     const dl = typeof currentPdfObjectUrl === "string" ? currentPdfObjectUrl : null;
                     downloadBtn.disabled = false;
+                    downloadBtn.style.display = "block";
                     downloadBtn.onclick = () => {
                         const a = document.createElement("a");
                         a.href = dl || (URL.createObjectURL(blob));
@@ -545,6 +555,7 @@
                         }
                         if (url) {
                             downloadBtn.disabled = false;
+                            downloadBtn.style.display = "block";
                             downloadBtn.onclick = () => {
                                 const a = document.createElement("a");
                                 a.href = url;
@@ -557,6 +568,7 @@
                             const blob = new Blob([data], { type: "text/plain" });
                             const downloadUrl = URL.createObjectURL(blob);
                             downloadBtn.disabled = false;
+                            downloadBtn.style.display = "block";
                             downloadBtn.onclick = () => {
                                 const a = document.createElement("a");
                                 a.href = downloadUrl;
@@ -569,6 +581,7 @@
                         const blob = new Blob([data], { type: "text/plain" });
                         const downloadUrl = URL.createObjectURL(blob);
                         downloadBtn.disabled = false;
+                        downloadBtn.style.display = "block";
                         downloadBtn.onclick = () => {
                             const a = document.createElement("a");
                             a.href = downloadUrl;
