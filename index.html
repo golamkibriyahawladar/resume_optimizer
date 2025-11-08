@@ -99,6 +99,34 @@
             background: rgba(255, 255, 255, 0.10);
         }
 
+        /* Specific styling for Resume Input Type dropdown */
+        #resumeSelect {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            -webkit-backdrop-filter: blur(10px) saturate(160%);
+            backdrop-filter: blur(10px) saturate(160%);
+            border-radius: 12px;
+            transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        #resumeSelect:hover {
+            background: rgba(255, 255, 255, 0.24);
+            border-color: rgba(255, 255, 255, 0.42);
+        }
+
+        #resumeSelect:focus {
+            background: rgba(255, 255, 255, 0.26);
+            border-color: rgba(255, 255, 255, 0.50);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.10);
+        }
+
+        /* Option styling (best-effort; browser support varies) */
+        #resumeSelect option {
+            background: rgba(20, 20, 22, 0.85);
+            color: #ffffff;
+        }
+
         textarea::placeholder {
             color: rgba(255, 255, 255, 0.7);
         }
@@ -255,7 +283,7 @@
 
 <body>
     <div class="container">
-        <h1>AI Resume Generator</h1>
+        <h1>Optimize your resume by AI</h1>
 
         <form id="resumeForm">
 
@@ -285,7 +313,7 @@
 
         <div class="loading" id="loading">
             <span></span><span></span><span></span>
-            <p>Generating your tailored resume...</p>
+            <p>Generating your tailored resume wait a minute...</p>
         </div>
 
         <div class="result" id="result"></div>
@@ -398,7 +426,7 @@
                     };
                     if (typeof showPdf === "function") { showPdf(url); }
                     resultDiv.style.display = "block";
-                    resultDiv.textContent = "✅ Resume file generated successfully!";
+                    resultDiv.textContent = "✅ Resume optimized successfully!";
                 }
             } catch (e) { }
         })();
