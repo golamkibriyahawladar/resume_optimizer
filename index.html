@@ -19,17 +19,17 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
             -webkit-backdrop-filter: blur(16px) saturate(160%);
             backdrop-filter: blur(16px) saturate(160%);
             border-radius: 20px;
             padding: 30px;
             width: 100%;
             max-width: 600px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.24);
             box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+                0 8px 24px rgba(0, 0, 0, 0.30),
+                inset 0 1px 0 rgba(255, 255, 255, 0.20);
             animation: fadeIn 0.8s ease;
             position: relative;
             overflow: hidden;
@@ -42,7 +42,7 @@
             left: -20%;
             width: 60%;
             height: 60%;
-            background: radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 60%);
+            background: radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 60%);
             transform: rotate(15deg);
             pointer-events: none;
             filter: blur(2px);
@@ -110,19 +110,23 @@
 
         button {
             width: 100%;
-            background: linear-gradient(90deg, #ff7eb3, #ff758c);
-            border: none;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+            backdrop-filter: blur(10px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 12px;
             padding: 14px;
             color: white;
             font-size: 1rem;
             cursor: pointer;
-            transition: 0.3s;
+            transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
         }
 
         button:hover:not(:disabled) {
-            background: linear-gradient(90deg, #ff758c, #ff7eb3);
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.38);
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         button:disabled {
@@ -139,8 +143,8 @@
             margin-top: 20px;
             white-space: pre-wrap;
             display: none;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
 
         .download-section {
@@ -149,20 +153,24 @@
         }
 
         .download-btn {
-            background: linear-gradient(90deg, #42e695, #3bb2b8);
+            background: rgba(255, 255, 255, 0.12);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+            backdrop-filter: blur(10px) saturate(150%);
             margin-top: 10px;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.28);
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
             color: white;
             width: 100%;
-            transition: 0.3s ease;
+            transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
         }
 
         .download-btn:hover:not(:disabled) {
-            background: linear-gradient(90deg, #3bb2b8, #42e695);
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.38);
             transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .loading {
@@ -193,6 +201,48 @@
             to {
                 transform: translateY(-10px);
                 opacity: 0.6;
+            }
+        }
+
+        /* PDF viewer glass section */
+        .pdf-section {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.06);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            backdrop-filter: blur(12px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
+            overflow: hidden;
+            display: none;
+        }
+        .pdf-header {
+            padding: 12px 16px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+        }
+        .pdf-header a {
+            color: rgba(255,255,255,0.95);
+            text-decoration: underline;
+        }
+        .pdf-header a:hover {
+            color: #fff;
+            opacity: 0.95;
+        }
+        .pdf-frame {
+            width: 100%;
+            height: 65vh;
+            min-height: 360px;
+            max-height: 80vh;
+            border: 0;
+            background: rgba(255,255,255,0.02);
+        }
+        @media (max-width: 640px) {
+            .pdf-frame {
+                height: 60vh;
+                min-height: 300px;
             }
         }
     </style>
@@ -240,6 +290,15 @@
         </div>
     </div>
 
+    <!-- PDF Preview Section (shown when a PDF is available) -->
+    <div id="pdfSection" class="pdf-section">
+        <div class="pdf-header">
+            Preview: Generated Resume (PDF)
+            <a id="pdfOpenLink" href="#" target="_blank" rel="noopener" style="float:right;">Open</a>
+        </div>
+        <iframe id="pdfFrame" class="pdf-frame" title="AI Resume PDF Preview"></iframe>
+    </div>
+    
     <script>
         const form = document.getElementById("resumeForm");
         const loading = document.getElementById("loading");
@@ -252,6 +311,31 @@
 
         const jobTextDiv = document.getElementById("jobTextDiv");
 
+        // PDF preview elements
+        const pdfSection = document.getElementById("pdfSection");
+        const pdfFrame = document.getElementById("pdfFrame");
+        const pdfOpenLink = document.getElementById("pdfOpenLink");
+        let currentPdfObjectUrl = null;
+        function showPdf(src) {
+            if (currentPdfObjectUrl) {
+                URL.revokeObjectURL(currentPdfObjectUrl);
+                currentPdfObjectUrl = null;
+            }
+            if (pdfSection) pdfSection.style.display = "block";
+            if (pdfFrame) pdfFrame.src = src;
+            if (pdfOpenLink) pdfOpenLink.href = src;
+        }
+        function showPdfFromBlob(blob) {
+            if (currentPdfObjectUrl) {
+                URL.revokeObjectURL(currentPdfObjectUrl);
+            }
+            const u = URL.createObjectURL(blob);
+            currentPdfObjectUrl = u;
+            if (pdfSection) pdfSection.style.display = "block";
+            if (pdfFrame) pdfFrame.src = u;
+            if (pdfOpenLink) pdfOpenLink.href = u;
+        }
+        
         // 🔗 Replace with your actual webhook URL
         const webhookURL = "https://1100-346.n8n1.deltadns.xyz/webhook-test/resumebuilder";
 
@@ -269,6 +353,7 @@
                         a.download = "AI_Resume.pdf";
                         a.click();
                     };
+                    if (typeof showPdf === "function") { showPdf(url); }
                     resultDiv.style.display = "block";
                     resultDiv.textContent = "✅ Resume file generated successfully!";
                 }
@@ -354,17 +439,19 @@
                             a.click();
                         };
                         resultDiv.textContent = "✅ Resume file generated successfully!";
+                        if (typeof showPdf === "function") { showPdf(url); }
                     } else {
                         const txt = JSON.stringify(json, null, 2);
                         resultDiv.textContent = txt || "✅ Resume generated successfully!";
                     }
                 } else if (contentType.includes("application/pdf") || contentType.includes("application/octet-stream")) {
                     const blob = await response.blob();
-                    const downloadUrl = URL.createObjectURL(blob);
+                    showPdfFromBlob(blob);
+                    const dl = typeof currentPdfObjectUrl === "string" ? currentPdfObjectUrl : null;
                     downloadBtn.disabled = false;
                     downloadBtn.onclick = () => {
                         const a = document.createElement("a");
-                        a.href = downloadUrl;
+                        a.href = dl || (URL.createObjectURL(blob));
                         a.download = "AI_Resume.pdf";
                         a.click();
                     };
@@ -389,6 +476,7 @@
                                 a.download = "AI_Resume.pdf";
                                 a.click();
                             };
+                            if (typeof showPdf === "function") { showPdf(url); }
                         } else {
                             const blob = new Blob([data], { type: "text/plain" });
                             const downloadUrl = URL.createObjectURL(blob);
