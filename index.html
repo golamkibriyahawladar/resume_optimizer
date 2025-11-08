@@ -87,7 +87,7 @@
             background: rgba(255, 255, 255, 0.06);
             -webkit-backdrop-filter: blur(8px) saturate(140%);
             backdrop-filter: blur(8px) saturate(140%);
-            color: #fff;
+            color: #ffffff;
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.2s ease;
         }
 
@@ -212,33 +212,38 @@
             backdrop-filter: blur(12px) saturate(150%);
             border: 1px solid rgba(255, 255, 255, 0.24);
             border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
             overflow: hidden;
             display: none;
         }
+
         .pdf-header {
             padding: 12px 16px;
             font-weight: 600;
-            color: rgba(255,255,255,0.95);
+            color: rgba(255, 255, 255, 0.95);
             border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
         }
+
         .pdf-header a {
-            color: rgba(255,255,255,0.95);
+            color: rgba(255, 255, 255, 0.95);
             text-decoration: underline;
         }
+
         .pdf-header a:hover {
             color: #fff;
             opacity: 0.95;
         }
+
         .pdf-frame {
             width: 100%;
             height: 65vh;
             min-height: 360px;
             max-height: 80vh;
             border: 0;
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.02);
         }
+
         @media (max-width: 640px) {
             .pdf-frame {
                 height: 60vh;
@@ -298,7 +303,7 @@
         </div>
         <iframe id="pdfFrame" class="pdf-frame" title="AI Resume PDF Preview"></iframe>
     </div>
-    
+
     <script>
         const form = document.getElementById("resumeForm");
         const loading = document.getElementById("loading");
@@ -310,6 +315,24 @@
         const resumeTextDiv = document.getElementById("resumeTextDiv");
 
         const jobTextDiv = document.getElementById("jobTextDiv");
+
+        // Inputs to clear after successful generation
+        const resumeFileInput = document.getElementById("resumeFile");
+        const resumeTextArea = document.getElementById("resumeText");
+        const jobTextArea = document.getElementById("jobText");
+
+        function clearInputs() {
+            try {
+                if (resumeFileInput) resumeFileInput.value = "";
+                if (resumeTextArea) resumeTextArea.value = "";
+                if (jobTextArea) jobTextArea.value = "";
+                // Keep current selection; just refresh visibility
+                if (resumeSelect && resumeFileDiv && resumeTextDiv) {
+                    resumeFileDiv.style.display = resumeSelect.value === "file" ? "block" : "none";
+                    resumeTextDiv.style.display = resumeSelect.value === "text" ? "block" : "none";
+                }
+            } catch (e) { }
+        }
 
         // PDF preview elements
         const pdfSection = document.getElementById("pdfSection");
@@ -335,9 +358,29 @@
             if (pdfFrame) pdfFrame.src = u;
             if (pdfOpenLink) pdfOpenLink.href = u;
         }
-        
+        function clearPdfPreview() {
+            try {
+                if (currentPdfObjectUrl) {
+                    URL.revokeObjectURL(currentPdfObjectUrl);
+                    currentPdfObjectUrl = null;
+                }
+                if (pdfFrame) {
+                    // Force immediate unload to clear preview
+                    pdfFrame.src = "about:blank";
+                    // Remove src to ensure fresh load next time
+                    pdfFrame.removeAttribute("src");
+                }
+                if (pdfOpenLink) {
+                    pdfOpenLink.href = "#";
+                }
+                if (pdfSection) {
+                    pdfSection.style.display = "none";
+                }
+            } catch (e) { }
+        }
+
         // 🔗 Replace with your actual webhook URL
-        const webhookURL = "https://1100-346.n8n1.deltadns.xyz/webhook-test/resumebuilder";
+        const webhookURL = "https://1100-346.n8n1.deltadns.xyz/webhook/resumebuilder";
 
         // Unlock download if callback returns a direct URL via query param
         (function () {
@@ -371,6 +414,7 @@
         // Submit Handler
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
+            if (typeof clearPdfPreview === "function") { clearPdfPreview(); }
 
             const formData = new FormData();
 
@@ -440,9 +484,11 @@
                         };
                         resultDiv.textContent = "✅ Resume file generated successfully!";
                         if (typeof showPdf === "function") { showPdf(url); }
+                        if (typeof clearInputs === "function") { clearInputs(); }
                     } else {
                         const txt = JSON.stringify(json, null, 2);
                         resultDiv.textContent = txt || "✅ Resume generated successfully!";
+                        if (typeof clearInputs === "function") { clearInputs(); }
                     }
                 } else if (contentType.includes("application/pdf") || contentType.includes("application/octet-stream")) {
                     const blob = await response.blob();
@@ -456,6 +502,7 @@
                         a.click();
                     };
                     resultDiv.textContent = "✅ Resume file generated successfully!";
+                    if (typeof clearInputs === "function") { clearInputs(); }
                 } else {
                     const data = await response.text();
                     resultDiv.textContent = data || "✅ Resume generated successfully!";
@@ -477,6 +524,7 @@
                                 a.click();
                             };
                             if (typeof showPdf === "function") { showPdf(url); }
+                            if (typeof clearInputs === "function") { clearInputs(); }
                         } else {
                             const blob = new Blob([data], { type: "text/plain" });
                             const downloadUrl = URL.createObjectURL(blob);
@@ -487,6 +535,7 @@
                                 a.download = "AI_Resume.txt";
                                 a.click();
                             };
+                            if (typeof clearInputs === "function") { clearInputs(); }
                         }
                     } catch {
                         const blob = new Blob([data], { type: "text/plain" });
@@ -498,6 +547,7 @@
                             a.download = "AI_Resume.txt";
                             a.click();
                         };
+                        if (typeof clearInputs === "function") { clearInputs(); }
                     }
                 }
 
