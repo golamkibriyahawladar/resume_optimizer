@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Resume Generator</title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #543c6e, #292a2b);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(101, 76, 101, 0.733);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 500;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        select,
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(90deg, #ff7eb3, #ff758c);
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(90deg, #ff758c, #ff7eb3);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .download-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .download-btn {
+            background: linear-gradient(90deg, #42e695, #3bb2b8);
+            margin-top: 10px;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: 0.3s ease;
+        }
+
+        .download-btn:hover:not(:disabled) {
+            background: linear-gradient(90deg, #3bb2b8, #42e695);
+            transform: scale(1.03);
+        }
+
+        .loading {
+            text-align: center;
+            display: none;
+            margin-top: 15px;
+        }
+
+        .loading span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        .loading span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            to {
+                transform: translateY(-10px);
+                opacity: 0.6;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>AI Resume Generator</h1>
+
+        <form id="resumeForm">
+
+            <!-- Resume Section -->
+            <label>Resume Input Type</label>
+            <select id="resumeSelect">
+                <option value="file">Upload File</option>
+                <option value="text">Paste Text</option>
+            </select>
+
+            <div id="resumeFileDiv">
+                <input type="file" id="resumeFile" accept=".pdf,.docx,.txt" />
+            </div>
+
+            <div id="resumeTextDiv" style="display:none;">
+                <textarea id="resumeText" placeholder="Paste your resume text here..."></textarea>
+            </div>
+
+            <!-- Job Post Section -->
+            <label>Job Post</label>
+            <div id="jobTextDiv">
+                <textarea id="jobText" placeholder="Paste the job post text here..."></textarea>
+            </div>
+
+            <button type="submit">Generate Resume</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <span></span><span></span><span></span>
+            <p>Generating your tailored resume...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="download-section">
+            <button id="downloadBtn" class="download-btn" disabled>Download Resume</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("resumeForm");
+        const loading = document.getElementById("loading");
+        const resultDiv = document.getElementById("result");
+        const downloadBtn = document.getElementById("downloadBtn");
+
+        const resumeSelect = document.getElementById("resumeSelect");
+        const resumeFileDiv = document.getElementById("resumeFileDiv");
+        const resumeTextDiv = document.getElementById("resumeTextDiv");
+
+        const jobTextDiv = document.getElementById("jobTextDiv");
+
+        // 🔗 Replace with your actual webhook URL
+        const webhookURL = "https://1100-346.n8n1.deltadns.xyz/webhook-test/resumebuilder";
+
+        // Unlock download if callback returns a direct URL via query param
+        (function () {
+            try {
+                const p = new URLSearchParams(location.search);
+                const direct = p.get("pdfUrl") || p.get("pdf") || p.get("url") || p.get("fileUrl") || p.get("signedUrl");
+                if (direct) {
+                    const url = decodeURIComponent(direct);
+                    downloadBtn.disabled = false;
+                    downloadBtn.onclick = () => {
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = "AI_Resume.pdf";
+                        a.click();
+                    };
+                    resultDiv.style.display = "block";
+                    resultDiv.textContent = "✅ Resume file generated successfully!";
+                }
+            } catch (e) { }
+        })();
+
+        // Toggle Resume input type
+        resumeSelect.addEventListener("change", () => {
+            resumeFileDiv.style.display = resumeSelect.value === "file" ? "block" : "none";
+            resumeTextDiv.style.display = resumeSelect.value === "text" ? "block" : "none";
+        });
+
+        // Job Post input type fixed to text; no toggle needed
+
+        // Submit Handler
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+
+            const resumeFile = document.getElementById("resumeFile").files[0];
+            const resumeText = document.getElementById("resumeText").value.trim();
+            const jobText = document.getElementById("jobText").value.trim();
+
+            if (resumeSelect.value === "file" && !resumeFile) {
+                alert("Please upload your resume file.");
+                return;
+            } else if (resumeSelect.value === "text" && !resumeText) {
+                alert("Please paste your resume text.");
+                return;
+            }
+
+            if (!jobText) {
+                alert("Please paste the job post text.");
+                return;
+            }
+
+            if (resumeFile) {
+                formData.append("resumeFile", resumeFile);
+                formData.append("resumeFileName", resumeFile.name || "resume");
+            }
+            if (resumeText) formData.append("resumeText", resumeText);
+            // Inject type for resume field: image if file, text if text
+            formData.append("resumeType", resumeSelect.value === "file" ? "image" : "text");
+
+            if (jobText) formData.append("jobText", jobText);
+            // Inject fixed type for job post field: text only
+            formData.append("jobType", "text");
+
+            formData.append("pass", "1020");
+
+            resultDiv.style.display = "none";
+            loading.style.display = "block";
+            downloadBtn.disabled = true;
+
+            try {
+                const response = await fetch(webhookURL, { method: "POST", body: formData });
+                const contentType = response.headers.get("Content-Type") || "";
+
+                loading.style.display = "none";
+                resultDiv.style.display = "block";
+
+                if (!response.ok) {
+                    const errText = await response.text().catch(() => "");
+                    throw new Error(`Request failed ${response.status} ${response.statusText} ${errText}`);
+                }
+
+                if (contentType.includes("application/json")) {
+                    const json = await response.json().catch(() => null);
+                    const keys = ["pdfUrl", "url", "fileUrl", "signedUrl", "pdf", "link"];
+                    let url = null;
+                    if (json && typeof json === "object") {
+                        for (const k of keys) {
+                            if (typeof json[k] === "string") { url = json[k]; break; }
+                        }
+                    }
+                    if (url) {
+                        downloadBtn.disabled = false;
+                        downloadBtn.onclick = () => {
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "AI_Resume.pdf";
+                            a.click();
+                        };
+                        resultDiv.textContent = "✅ Resume file generated successfully!";
+                    } else {
+                        const txt = JSON.stringify(json, null, 2);
+                        resultDiv.textContent = txt || "✅ Resume generated successfully!";
+                    }
+                } else if (contentType.includes("application/pdf") || contentType.includes("application/octet-stream")) {
+                    const blob = await response.blob();
+                    const downloadUrl = URL.createObjectURL(blob);
+                    downloadBtn.disabled = false;
+                    downloadBtn.onclick = () => {
+                        const a = document.createElement("a");
+                        a.href = downloadUrl;
+                        a.download = "AI_Resume.pdf";
+                        a.click();
+                    };
+                    resultDiv.textContent = "✅ Resume file generated successfully!";
+                } else {
+                    const data = await response.text();
+                    resultDiv.textContent = data || "✅ Resume generated successfully!";
+                    try {
+                        const maybe = JSON.parse(data);
+                        const keys = ["pdfUrl", "url", "fileUrl", "signedUrl", "pdf", "link"];
+                        let url = null;
+                        if (maybe && typeof maybe === "object") {
+                            for (const k of keys) {
+                                if (typeof maybe[k] === "string") { url = maybe[k]; break; }
+                            }
+                        }
+                        if (url) {
+                            downloadBtn.disabled = false;
+                            downloadBtn.onclick = () => {
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = "AI_Resume.pdf";
+                                a.click();
+                            };
+                        } else {
+                            const blob = new Blob([data], { type: "text/plain" });
+                            const downloadUrl = URL.createObjectURL(blob);
+                            downloadBtn.disabled = false;
+                            downloadBtn.onclick = () => {
+                                const a = document.createElement("a");
+                                a.href = downloadUrl;
+                                a.download = "AI_Resume.txt";
+                                a.click();
+                            };
+                        }
+                    } catch {
+                        const blob = new Blob([data], { type: "text/plain" });
+                        const downloadUrl = URL.createObjectURL(blob);
+                        downloadBtn.disabled = false;
+                        downloadBtn.onclick = () => {
+                            const a = document.createElement("a");
+                            a.href = downloadUrl;
+                            a.download = "AI_Resume.txt";
+                            a.click();
+                        };
+                    }
+                }
+
+            } catch (error) {
+                loading.style.display = "none";
+                alert("Something went wrong! Check console for details.");
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+
+</html>
